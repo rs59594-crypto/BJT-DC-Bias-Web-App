@@ -3,41 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BJT DC Bias Calculator — Lab 02</title>
+  <title>BJT DC Bias Calculator — Lab 02/03</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <header>
     <h1>BJT DC Bias Calculator</h1>
-    <p class="subtitle">คำนวณจุดทำงาน DC ของวงจรขยาย NPN Common-Emitter แบบ Voltage-Divider Bias</p>
+    <p class="subtitle">คำนวณจุดทำงาน DC ของวงจรขยาย NPN Common-Emitter — เลือกวงจรไบอัสได้หลายแบบ</p>
   </header>
 
   <main>
+    <section class="card mode-card">
+      <h2>เลือกวงจรไบอัส</h2>
+      <form method="get" action="{{ url_for('index') }}" class="mode-form">
+        <label>โหมดวงจร
+          <select name="mode">
+            {% for key, spec in modes.items() %}
+            <option value="{{ key }}" {{ 'selected' if key == mode else '' }}>{{ spec.label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="secondary">เปลี่ยนโหมด</button>
+      </form>
+    </section>
+
     <section class="card">
-      <h2>กรอกค่าวงจร</h2>
+      <h2>กรอกค่าวงจร · โหมด {{ mode_label }}</h2>
       <form method="post" action="{{ url_for('calculate') }}">
+        <input type="hidden" name="mode" value="{{ mode }}">
         <div class="grid">
-          <label>VCC — แรงดันแหล่งจ่าย [V]
-            <input type="text" name="vcc" value="{{ values['vcc'] }}" required>
+          {% for name in modes[mode].fields %}
+          {% set eng, th, unit = FIELD_DEFS[name] %}
+          <label>{{ eng }}{% if unit %} — {{ th }} [{{ unit }}]{% else %} — {{ th }}{% endif %}
+            <input type="text" name="{{ name }}" value="{{ values[name] }}" required>
           </label>
-          <label>R1 — ตัวต้านทานบน [kΩ]
-            <input type="text" name="r1" value="{{ values['r1'] }}" required>
-          </label>
-          <label>R2 — ตัวต้านทานล่าง [kΩ]
-            <input type="text" name="r2" value="{{ values['r2'] }}" required>
-          </label>
-          <label>RC — ตัวต้านทาน Collector [kΩ]
-            <input type="text" name="rc" value="{{ values['rc'] }}" required>
-          </label>
-          <label>RE — ตัวต้านทาน Emitter [kΩ]
-            <input type="text" name="re" value="{{ values['re'] }}" required>
-          </label>
-          <label>β (beta) — อัตราขยายกระแส
-            <input type="text" name="beta" value="{{ values['beta'] }}" required>
-          </label>
-          <label>VBE — แรงดัน Base-Emitter [V]
-            <input type="text" name="vbe" value="{{ values['vbe'] }}" required>
-          </label>
+          {% endfor %}
         </div>
         <button type="submit">คำนวณ DC Bias</button>
       </form>
@@ -52,7 +52,7 @@
 
     {% if results %}
     <section class="card">
-      <h2>ผลลัพธ์</h2>
+      <h2>ผลลัพธ์ · โหมด {{ mode_label }}</h2>
       <p class="region region-{{ 'ok' if 'Forward' in region_label else 'warn' }}">
         ภาวะทำงาน: <strong>{{ region_label }}</strong>
       </p>
@@ -68,8 +68,10 @@
           <tr><td>I<sub>C</sub> (กระแสคอลเลกเตอร์)</td><td>{{ results['ic'] }}</td><td>mA</td></tr>
           <tr><td>I<sub>B</sub> (กระแสเบส)</td><td>{{ results['ib'] }}</td><td>µA</td></tr>
           <tr><td>I<sub>E</sub> (กระแสอีมิตเตอร์)</td><td>{{ results['ie'] }}</td><td>mA</td></tr>
+          {% if results['vth'] is defined and results['rth'] is defined %}
           <tr><td>V<sub>TH</sub> (Thevenin)</td><td>{{ results['vth'] }}</td><td>V</td></tr>
           <tr><td>R<sub>TH</sub> (Thevenin)</td><td>{{ results['rth'] }}</td><td>kΩ</td></tr>
+          {% endif %}
         </tbody>
       </table>
 
@@ -81,7 +83,7 @@
   </main>
 
   <footer>
-    <p>ENG29 2121 · Lab 02 (2/2569) — แบบจำลอง Forward-Active (β, VBE คงที่) · รายละเอียดใน <code>docs/design-note.md</code></p>
+    <p>ENG29 2121 · Lab 02 → 03 (2/2569) — แบบจำลอง Forward-Active (β, VBE คงที่) · รายละเอียดใน <code>docs/design-note.md</code> และ <code>docs/superpowers/specs/</code></p>
   </footer>
 </body>
 </html>
