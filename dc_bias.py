@@ -109,3 +109,112 @@ def calculate_dc_bias(vcc: float, r1: float, r2: float, rc: float,
         "region": region,
         "warnings": warnings,
     }
+
+
+def calculate_fixed_bias(vcc: float, rb: float, rc: float,
+                         beta: float, vbe: float) -> dict:
+    """คำนวณจุดทำงาน DC ของ Fixed Bias (หน่วย SI: V, Ω, A)
+
+    RB ต่อจาก VCC ไป Base, Emitter ต่อลงกราวด์โดยตรง (VE = 0 V)
+    IB = (VCC − VBE) / RB · IC = β·IB · IE = (β+1)·IB
+    VB = VBE · VC = VCC − IC·RC · VCE = VC
+    คืน dict ชื่อคีย์เดียวกับ calculate_dc_bias (ยกเว้น vth/rth ซึ่งไม่มีในวงจรนี้)
+    """
+    vcc = _validate_positive("vcc", vcc, "VCC")
+    rb = _validate_positive("rb", rb, "RB")
+    rc = _validate_positive("rc", rc, "RC")
+    beta = _validate_positive("beta", beta, "β (beta)")
+    vbe = _validate_nonnegative("vbe", vbe, "VBE")
+
+    ib = (vcc - vbe) / rb
+    ic = beta * ib
+    ie = (beta + 1.0) * ib
+
+    ve = 0.0
+    vb = ve + vbe
+    vc = vcc - ic * rc
+    vce = vc - ve
+
+    # เกณฑ์ตาม Lab 03 §03: IB ≤ 0 หรือ VCE ≤ 0.2 V → แบบจำลองอาจใช้ไม่ได้
+    warnings: list[str] = []
+    if ib <= 0:
+        region = "cutoff"
+        warnings.append(
+            "IB ≤ 0 — กระแสเบสไม่ไหล ทรานซิสเตอร์อยู่ในภาวะ Cutoff "
+            "ค่าที่แสดงเป็นผลจากแบบจำลองซึ่งใช้ไม่ได้จริงในภาวะนี้"
+        )
+    elif vce <= VCE_SAT_WARN:
+        region = "saturation"
+        warnings.append(
+            f"VCE ≤ {VCE_SAT_WARN} V — ทรานซิสเตอร์เข้าใกล้/อยู่ในภาวะ Saturation "
+            "ค่าที่แสดงเป็นผลจากแบบจำลอง Forward-Active ซึ่งใช้ไม่ได้จริงในภาวะนี้"
+        )
+    else:
+        region = "forward-active"
+
+    return {
+        "ib": ib,
+        "ic": ic,
+        "ie": ie,
+        "vb": vb,
+        "ve": ve,
+        "vc": vc,
+        "vce": vce,
+        "region": region,
+        "warnings": warnings,
+    }
+
+
+def calculate_emitter_bias(vcc: float, rb: float, rc: float, re: float,
+                           beta: float, vbe: float) -> dict:
+    """คำนวณจุดทำงาน DC ของ Emitter Bias (หน่วย SI: V, Ω, A)
+
+    RB ต่อจาก VCC ไป Base, RE ต่อจาก Emitter ลงกราวด์
+    IB = (VCC − VBE) / [RB + (β+1)·RE] · IC = β·IB · IE = (β+1)·IB
+    VE = IE·RE · VB = VE+VBE · VC = VCC − IC·RC · VCE = VC − VE
+    คืน dict ชื่อคีย์เดียวกับ calculate_dc_bias (ยกเว้น vth/rth ซึ่งไม่มีในวงจรนี้)
+    """
+    vcc = _validate_positive("vcc", vcc, "VCC")
+    rb = _validate_positive("rb", rb, "RB")
+    rc = _validate_positive("rc", rc, "RC")
+    re = _validate_positive("re", re, "RE")
+    beta = _validate_positive("beta", beta, "β (beta)")
+    vbe = _validate_nonnegative("vbe", vbe, "VBE")
+
+    ib = (vcc - vbe) / (rb + (beta + 1.0) * re)
+    ic = beta * ib
+    ie = (beta + 1.0) * ib
+
+    ve = ie * re
+    vb = ve + vbe
+    vc = vcc - ic * rc
+    vce = vc - ve
+
+    # เกณฑ์ตาม Lab 03 §03: IB ≤ 0 หรือ VCE ≤ 0.2 V → แบบจำลองอาจใช้ไม่ได้
+    warnings: list[str] = []
+    if ib <= 0:
+        region = "cutoff"
+        warnings.append(
+            "IB ≤ 0 — กระแสเบสไม่ไหล ทรานซิสเตอร์อยู่ในภาวะ Cutoff "
+            "ค่าที่แสดงเป็นผลจากแบบจำลองซึ่งใช้ไม่ได้จริงในภาวะนี้"
+        )
+    elif vce <= VCE_SAT_WARN:
+        region = "saturation"
+        warnings.append(
+            f"VCE ≤ {VCE_SAT_WARN} V — ทรานซิสเตอร์เข้าใกล้/อยู่ในภาวะ Saturation "
+            "ค่าที่แสดงเป็นผลจากแบบจำลอง Forward-Active ซึ่งใช้ไม่ได้จริงในภาวะนี้"
+        )
+    else:
+        region = "forward-active"
+
+    return {
+        "ib": ib,
+        "ic": ic,
+        "ie": ie,
+        "vb": vb,
+        "ve": ve,
+        "vc": vc,
+        "vce": vce,
+        "region": region,
+        "warnings": warnings,
+    }
