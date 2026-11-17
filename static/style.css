@@ -1,0 +1,112 @@
+/* BJT DC Bias Calculator — Lab 02 · ธีมเรียบอ่านง่าย */
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --ink: #1f2933;
+  --muted: #61707d;
+  --accent: #1660a8;
+  --accent-dark: #0f4a85;
+  --error-bg: #fdecea;
+  --error-ink: #b3261e;
+  --warn-bg: #fff7d6;
+  --warn-ink: #8a6d00;
+  --ok-ink: #14691b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Noto Sans Thai", Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+header {
+  background: var(--accent);
+  color: #fff;
+  padding: 1.2rem 1.5rem;
+}
+
+header h1 { margin: 0 0 .2rem; font-size: 1.4rem; }
+header .subtitle { margin: 0; color: #dbe9f7; }
+
+main {
+  max-width: 720px;
+  margin: 1.2rem auto 2rem;
+  padding: 0 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid #dfe5ea;
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+}
+
+.card h2 { margin: 0 0 .8rem; font-size: 1.1rem; color: var(--accent-dark); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: .8rem 1rem;
+}
+
+label { display: flex; flex-direction: column; gap: .25rem; font-size: .92rem; }
+
+input {
+  padding: .5rem .6rem;
+  border: 1px solid #b8c2cc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+button {
+  margin-top: 1rem;
+  padding: .6rem 1.4rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover { background: var(--accent-dark); }
+
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+
+th, td {
+  padding: .45rem .6rem;
+  border-bottom: 1px solid #e4e9ee;
+  text-align: left;
+}
+
+th { background: #eef3f7; color: var(--muted); }
+
+td:nth-child(2), th:nth-child(2) { text-align: right; font-variant-numeric: tabular-nums; }
+
+.region { padding: .5rem .8rem; border-radius: 6px; }
+.region-ok { background: #e8f5e9; color: var(--ok-ink); }
+.region-warn { background: var(--warn-bg); color: var(--warn-ink); }
+
+.error {
+  background: var(--error-bg);
+  border-color: #f2b8b5;
+  color: var(--error-ink);
+}
+
+.warning {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  border-radius: 6px;
+  padding: .5rem .8rem;
+  margin: .6rem 0 0;
+}
+
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 1rem; }
